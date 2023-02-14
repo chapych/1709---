@@ -1,4 +1,7 @@
-﻿int n   = Int32.Parse(Console.ReadLine());
+﻿
+using System.Text;
+
+int n   = Int32.Parse(Console.ReadLine());
 var prices = Console.ReadLine().Split(' ').Select(x=>Int32.Parse(x)).ToArray();
 var d = prices[0];
 var a = prices[1];
@@ -14,6 +17,33 @@ for (int j = n; j > 0; j--)
     }
 
 }
+var finalPrice = 0;
+var connectedList = graph.FindConnected().Select(x=>new Graph(x)); // graphs with only more than two nodes are needed
+
+foreach (var connected in connectedList)
+{
+    connected.FindCycles();
+}
+
+
+public static class Reader
+{
+    public static Graph ReadFromText(int n, params string[] text)
+    {
+        var graph = new Graph(n);
+        for (int j = 0; j<n; j++)
+        {
+            var line = text[j].Split(' ').Select(x => Int32.Parse(x)).ToArray();
+            for (int i = j; i < n; i++)
+            {
+                if (line[i] == 1)
+                    graph.Connect(i, j);
+            }
+        }
+        return graph;
+    }
+}
+
 
 public class Graph
 {
@@ -21,7 +51,17 @@ public class Graph
     public int Length { get { return nodes.Length; } }
     public Graph(int n)
     {
-        nodes = new Node[n];
+        nodes = new Node[n]; ////add nodes initialisings
+        for (int i = 0; i < n; i++)
+            nodes[i] = new Node(i);
+    }
+
+    public Graph(IEnumerable<Node> values)
+    {
+        nodes = new Node[values.Count()];
+        int i = 0;
+        foreach(var el in values)
+            nodes[i++] = el;
     }
 
     public int this[int i] => nodes[i].id;
@@ -34,29 +74,24 @@ public class Graph
     {
         get
         {
-           foreach(var node in nodes)
+            foreach (var node in nodes) 
                 yield return node;
-    }
+        }
 
     
     }
 
-    IEnumerable<Node> FindConnected(Graph graph)
+    public IEnumerable<IEnumerable<Node>> FindConnected()
     {
         var visited = new HashSet<Node>();
-        var length = graph.Length;
+        var length = this.Length;
         while (true)
         {
-            var nextNode = graph.Nodes.Where(node => !visited.Contains(node)).FirstOrDefault();
+            var nextNode = this.Nodes.Where(node => !visited.Contains(node)).FirstOrDefault();
             if (nextNode == null) break;
-            var breadthSearch = graph.BreadthSearch(nextNode).ToList(); 
+            var breadthSearch = this.BreadthSearch(nextNode).ToList(); 
             //result.Add(breadthSearch.ToList());
-            foreach (var node in breadthSearch)
-            {
-                visited.Add(node);
-                yield return node;
-            }
-            
+            yield return breadthSearch;
         }
     }
 
@@ -68,7 +103,7 @@ public class Graph
         while (true)
         {
             var current = queue.Dequeue();
-            foreach(var node in current.connected)
+            foreach(var node in current.Connected)
             {
                 queue.Enqueue(node);
             }
@@ -77,24 +112,95 @@ public class Graph
         }
     }
 
+    public void FindCycles()
+    {
+        var nodes = this.Nodes;
+        var visited = new HashSet<Node>();  // Серые вершины
+        var finished = new HashSet<Node>(); // Черные вершины
+        var nextPoints = new Stack<Node>();
+        var previousPoints = new Stack<Node>();
+        visited.Add(nodes.First());
+        nextPoints.Push(nodes.First());
+        
+        while (nextPoints.Count != 0)
+        {
+            var node = nextPoints.Pop();
+            previousPoints.Push(node);
+            foreach (var nextNode in node.Connected)
+            {
+                if (finished.Contains(nextNode)) continue;
+                if (visited.Contains(nextNode))
+                {
+                    var root = nextNode.Connected.Where(x => finished.Contains(x))
+                                                 .FirstOrDefault();
+                    nextNode.DisconnectExpectFor(root);
+                    DestroyCycle(previousPoints, root);
+                }
+                visited.Add(nextNode);
+                nextPoints.Push(nextNode);
+            }
+            finished.Add(node); // красим в черный, когда рассмотрели все пути из node(no inc or all inc nodes are blACK)         
+        }
+
+    }
+
+    void DestroyCycle(Stack<Node> stack, Node root)
+    {
+        while(true)
+        {
+            var current = stack.Pop();
+            if (current == null) return;////idk why could this possibly happen
+            if(current == root) return;
+            current.DisconnectExpectFor(root);
+        }
+    }
+
+    public int Reduce()
+    {
+        int result = 0;
+        var baseNode = Nodes.OrderByDescending(x => x.Connected.Count)
+                .FirstOrDefault();
+        if (baseNode == null) return 0;
+        foreach(var node in Nodes)
+        {
+            if (node == baseNode) continue;
+            node.DisconnectExpectFor(baseNode);
+            result++;
+        }
+        return result;
+    }
 
 }
 
 public class Node
 {
     public int id;
-    public List<Node> connected;
+    public HashSet<Node> Connected;
 
     public Node(int id)
     {
         this.id = id;
-        connected = new List<Node>();
+        Connected = new HashSet<Node>();
     }
 
     public void Connect(Node other)
     {
-        connected.Add(other);
-        other.connected.Add(this);
+        Connected.Add(other);
+        other.Connected.Add(this);
+    }
+
+    public void DisconnectExpectFor(Node restNode)
+    {
+        Connected.Clear();
+        this.Connect(restNode);
+    }
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        foreach(var el in Connected)
+            sb.Append(el.id);
+        return sb.ToString();
     }
 }
 

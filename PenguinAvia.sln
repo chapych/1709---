@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PenguinAvia", "PenguinAvia\PenguinAvia.csproj", "{BA602A33-C391-467D-9D94-CF0C93222270}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PenguinAvia", "PenguinAvia\PenguinAvia.csproj", "{BA602A33-C391-467D-9D94-CF0C93222270}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject", "TestProject\TestProject.csproj", "{533B20B6-5749-426E-A287-62740CF58A55}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{BA602A33-C391-467D-9D94-CF0C93222270}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA602A33-C391-467D-9D94-CF0C93222270}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA602A33-C391-467D-9D94-CF0C93222270}.Release|Any CPU.Build.0 = Release|Any CPU
+		{533B20B6-5749-426E-A287-62740CF58A55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{533B20B6-5749-426E-A287-62740CF58A55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{533B20B6-5749-426E-A287-62740CF58A55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{533B20B6-5749-426E-A287-62740CF58A55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
